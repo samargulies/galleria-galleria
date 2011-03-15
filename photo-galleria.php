@@ -330,9 +330,9 @@ function photo_galleria_scripts_head(){
 	$photo_galleria = get_option( 'photo_galleria' );
 	$design = $photo_galleria['design'];
 		if ($design == 'classic' || $design == '') {
-				$design = PHOTO_GALLERIA_PLUGIN_URL . '/themes/classic/galleria.classic.js';}
+				$design = PHOTO_GALLERIA_PLUGIN_URL . '/themes/classic/galleria.classic.min.js';}
 			elseif ($design == 'dots') {
-				$design = PHOTO_GALLERIA_PLUGIN_URL . '/themes/dots/galleria.dots.js';}
+				$design = PHOTO_GALLERIA_PLUGIN_URL . '/themes/dots/galleria.dots.min.js';}
 			elseif ($design == 'fullscreen') {
 				$design = PHOTO_GALLERIA_PLUGIN_URL . '/themes/fullscreen/galleria.fullscreen.js';}
 	$autoplay = $photo_galleria['autoplay'];
