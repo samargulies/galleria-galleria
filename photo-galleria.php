@@ -1,16 +1,17 @@
 <?php
-
-/****************************************************************
-
-Plugin Name: Photo Galleria
-Plugin URI: http://graphpaperpress.com/2008/05/31/photo-galleria-plugin-for-wordpress/
-Description: Creates beautiful slideshows from embedded WordPress galleries.
-Version: 0.3.6
-Author: Thad Allender
-Author URI: http://graphpaperpress.com
+/*
+Plugin Name: Galleria Galleria
+Plugin URI: 
+Description: Transform standard WordPress galleries into galleria slideshows.
+Version: 0.1
+Author: Sam Margulies
+Author URI: 
 License: GPL
 
-*****************************************************************
+.
+
+Based on Photo Galleria by Thad Allender
+http://graphpaperpress.com/
 
 Bravo Aino!
 http://galleria.aino.se/
@@ -18,7 +19,7 @@ http://galleria.aino.se/
 Mr. Philip Arthur Moore for IE debugging
 http://www.philiparthurmoore.com
 
-****************************************************************/
+*/
 
 /**
  * Define plugin constants
@@ -31,8 +32,6 @@ define ('PHOTO_GALLERIA_PLUGIN_DIR',WP_PLUGIN_DIR.'/'.dirname(plugin_basename(__
  * Add plugin options & menu
  */
  
-add_action( 'admin_init', 'photo_galleria_options_init' );
-add_action( 'admin_menu', 'photo_galleria_options_add_page' );
 
 /**
  * Init plugin options to white list our options
@@ -41,7 +40,7 @@ add_action( 'admin_menu', 'photo_galleria_options_add_page' );
 function photo_galleria_options_init(){
 	register_setting( 'photo_galleria_options', 'photo_galleria', 'photo_galleria_options_validate' );
 }
-
+add_action( 'admin_init', 'photo_galleria_options_init' );
 /**
  * Load up the menu page
  */
@@ -49,7 +48,7 @@ function photo_galleria_options_init(){
 function photo_galleria_options_add_page() {
 	add_options_page( __( 'Photo Galleria' ), __( 'Photo Galleria' ), 'manage_options', 'photo_galleria_options', 'photo_galleria_options_do_page' );
 }
-
+add_action( 'admin_menu', 'photo_galleria_options_add_page' );
 /**
  * Create arrays for our select and radio options
  */
@@ -62,11 +61,11 @@ $design_options = array(
 	'dots' => array(
 		'value' =>	'dots',
 		'label' => __( 'Dots' )
+	),
+		'fullscreen' => array(
+		'value' =>	'fullscreen',
+		'label' => __( 'Fullscreen' )
 	)
-		//'fullscreen' => array(
-		//'value' =>	'fullscreen',
-		//'label' => __( 'Fullscreen' )
-	//),
 );
 
 $transition_options = array(
@@ -305,21 +304,28 @@ function photo_galleria_options_validate( $input ) {
 /**
  * Load javascripts
  */
-if (!is_admin())
-	add_action( 'init', 'photo_galleria_load_scripts' );
 	
 function photo_galleria_load_scripts( ) {
-	wp_enqueue_script('jquery');
-	wp_enqueue_script('photo-galleria', plugins_url( 'galleria.js', __FILE__ ), array('jquery'));
+	global $add_galleria_scripts;
+	
+	if( !$add_galleria_scripts )
+		return;
+		
+	wp_enqueue_script('photo-galleria', plugins_url( 'galleria-1.2.2.min.js', __FILE__ ), array('jquery'));
+	wp_print_scripts('photo-galleria');
+	photo_galleria_scripts_head();
 }
 
 /**
  * Add scripts to head
  */
 function photo_galleria_scripts_head(){
-
-global $post, $wp_query;
-
+	global $content_width;
+	if( isset($content_width) ) {
+		$galleria_default_width = $content_width;
+	} else {
+		$galleria_default_width = 500;
+	}
 	// Retreive our plugin options
 	$photo_galleria = get_option( 'photo_galleria' );
 	$design = $photo_galleria['design'];
@@ -327,8 +333,8 @@ global $post, $wp_query;
 				$design = PHOTO_GALLERIA_PLUGIN_URL . '/themes/classic/galleria.classic.js';}
 			elseif ($design == 'dots') {
 				$design = PHOTO_GALLERIA_PLUGIN_URL . '/themes/dots/galleria.dots.js';}
-			//elseif ($design == 'fullscreen') {
-				//$design = '/themes/fullscreen/galleria.fullscreen.js';}
+			elseif ($design == 'fullscreen') {
+				$design = PHOTO_GALLERIA_PLUGIN_URL . '/themes/fullscreen/galleria.fullscreen.js';}
 	$autoplay = $photo_galleria['autoplay'];
 		if ($autoplay == 1) { $autoplay = '5000'; }
 		if ($autoplay == 0) { $autoplay = 'false'; }
@@ -337,72 +343,16 @@ global $post, $wp_query;
         $height = 500;
   $width = $photo_galleria['width'];
     if($width=="")
-        $width = 500;
+        $width = $galleria_default_width;
 	$transition = $photo_galleria['transition'];
 	
-	// show only on homepage and archive pages
-	if ( !is_admin() && is_home() || !is_admin() && is_archive() ) {
-		echo "\n<script>
-			    
-  // Load theme
-  Galleria.loadTheme('" . $design . "');\n\t";
-  
-  // run galleria and add some options
-  echo "jQuery('";
-  $posts = get_posts('numberposts=-1');
-		
-	$stack = array();
-        
-    foreach ($posts as $post) {
-			$pid = $post->ID;    
-        
-			if ( stripos($post->post_content, '[gallery') !== false ) {
-				$element = "#galleria-" . $pid;
-				array_push($stack,$element);
-			}
-
-    }
-    
-    //print_r($stack);
-    
-    $lastitem = end($stack);
-    
-    foreach($stack as $ele) {
-        if($ele != $lastitem) {
-            echo $ele . ", ";
-        } else {
-            echo $ele;
-        }
-    }
-				
-	echo "').galleria({
-  		autoplay: " . $autoplay . ",
-      height: " . $height . ",
-			width: " . $width . ",
-      transition: '" . $transition . "',
-      data_config: function(img) {
-          // will extract and return image captions from the source:
-          return  {
-              title: jQuery(img).parent().next('strong').html(),
-              description: jQuery(img).parent().next('strong').next().html()
-          };
-      }
-  });
-  </script>\n";
-	}
-	
-	// Show only on single posts and pages
-	if ( !is_admin() && is_single() || !is_admin() && is_page() ) {
-		echo "\n<script>
-			    
+echo "\n<script>
+	jQuery(document).ready(function($){
   // Load theme
   Galleria.loadTheme('" . $design . "');\n\t";
 
   // run galleria and add some options
-  echo "jQuery('";
-		if (gallery_shortcode($post->ID))
-	  	$pid = $post->ID;
-		echo "#galleria-" . $pid ."').galleria({
+  echo "$('.galleria-gallery').galleria({
   		autoplay: " . $autoplay . ",
       height: " . $height . ",
       width: " . $width . ",
@@ -410,35 +360,33 @@ global $post, $wp_query;
       data_config: function(img) {
           // will extract and return image captions from the source:
           return  {
-              title: jQuery(img).parent().next('strong').html(),
-              description: jQuery(img).parent().next('strong').next().html()
+              title: $(img).parent().next('strong').html(),
+              description: $(img).parent().next('strong').next().html()
           };
       }
   });
+  });
   </script>\n";
-	}
-
 }
 
 function photo_galleria_css_head() {
 	$photo_galleria = get_option( 'photo_galleria' );
 	$color = $photo_galleria['color'];
 	if ($color != '')
-	echo '<style type="text/css">.galleria-container {background-color: '.$color.' ;}</style>';
+		echo "<style type='text/css'>.galleria-container {background-color:{$color};}</style>";
 }
 
-add_action('wp_footer','photo_galleria_scripts_head');
-add_action('wp_head','photo_galleria_css_head');
 
 /**
  * Lets make new gallery shortcode
  */
 function photo_galleria_shortcode($attr) {
-
-global $post;
-$pid = $post->ID;
-$photo_galleria = get_option( 'photo_galleria' );
-$image_size = $photo_galleria['image'];
+	global $post, $add_galleria_scripts;
+	
+	$add_galleria_scripts = true;
+	$pid = $post->ID;
+	$photo_galleria = get_option( 'photo_galleria' );
+	$image_size = $photo_galleria['image'];
 
 	// We're trusting author input, so let's at least make sure it looks like a valid orderby statement
 	if ( isset( $attr['orderby'] ) ) {
@@ -453,7 +401,7 @@ $image_size = $photo_galleria['image'];
 	), $attr));
 
 	$id = intval($id);
-	$attachments = get_children("post_parent=$id&post_type=attachment&post_mime_type=image&orderby={$orderby}");
+	$attachments = get_children("post_parent={$id}&post_type=attachment&post_mime_type=image&orderby={$orderby}");
 
 	if ( empty($attachments) )
 		return '';
@@ -466,7 +414,7 @@ $image_size = $photo_galleria['image'];
 	}
 
 	// Build galleria markup
-	$output = apply_filters('gallery_style', '<div id="galleria-' . $pid . '"><!-- Begin Galleria -->');
+	$output = apply_filters('gallery_style', '<div class="galleria-gallery"><!-- Begin Galleria -->');
 
 	// Loop through each image
 	foreach ( $attachments as $id => $attachment ) {
@@ -503,9 +451,17 @@ $image_size = $photo_galleria['image'];
 	return $output;
 }
 
-	// Remove original wp gallery shortcode
-	remove_shortcode('gallery');
 
-	// Add our new shortcode with galleria markup
-	add_shortcode('gallery', 'photo_galleria_shortcode');
+	
+	function galleria_init() {
+		// Remove original wp gallery shortcode
+		remove_shortcode('gallery');
+
+		// Add our new shortcode with galleria markup
+		add_shortcode('gallery', 'photo_galleria_shortcode');
+		add_action('wp_footer', 'photo_galleria_load_scripts' );
+		add_action('wp_head','photo_galleria_css_head');
+		
+	}
+	add_action('init', 'galleria_init');
 ?>
