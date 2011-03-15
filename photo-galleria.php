@@ -320,14 +320,9 @@ function photo_galleria_load_scripts( ) {
  * Add scripts to head
  */
 function photo_galleria_scripts_head(){
-	global $content_width;
-	if( isset($content_width) ) {
-		$galleria_default_width = $content_width;
-	} else {
-		$galleria_default_width = 500;
-	}
 	// Retreive our plugin options
 	$photo_galleria = get_option( 'photo_galleria' );
+	$wp_default_sizes = wp_embed_defaults();
 	$design = $photo_galleria['design'];
 		if ($design == 'classic' || $design == '') {
 				$design = PHOTO_GALLERIA_PLUGIN_URL . '/themes/classic/galleria.classic.min.js';}
@@ -340,10 +335,10 @@ function photo_galleria_scripts_head(){
 		if ($autoplay == 0) { $autoplay = 'false'; }
 	$height = $photo_galleria['height'];
     if($height=="")
-        $height = 500;
-  $width = $photo_galleria['width'];
+        $height = $wp_default_sizes['height'];
+  	$width = $photo_galleria['width'];
     if($width=="")
-        $width = $galleria_default_width;
+        $width = $wp_default_sizes['width'];
 	$transition = $photo_galleria['transition'];
 	
 echo "\n<script>
