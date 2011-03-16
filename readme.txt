@@ -1,10 +1,11 @@
 === Galleria Galleria ===
-Contributors: gluten
+Contributors: Sam Margulies
 Donate link: 
 Tags: photo, photos, gallery, galleries, photo gallery, lightbox 
 Requires at least: 3.0
 Tested up to: 3.1
 Stable tag: 0.1
+License: GPLv2
 
 Transform standard WordPress galleries into galleria slideshows. 
 
@@ -25,5 +26,5 @@ Galleria Galleria is a fork of [Photo Galleria](http://graphpaperpress.com/2008/
 
 == Changelog ==
 
-= Version 0.1 =
-Initial commit
+= 0.1 =
+* Initial commit
