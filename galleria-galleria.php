@@ -10,8 +10,8 @@ License: GPL
 
 .
 
-Based on Galleria Galleria by Thad Allender
-http://graphpaperpress.com/
+Based on Photo Galleria by Thad Allender
+http://wordpress.org/extend/plugins/photo-galleria/
 
 Bravo Aino!
 http://galleria.aino.se/
