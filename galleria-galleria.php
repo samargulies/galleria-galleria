@@ -149,18 +149,6 @@ function galleria_galleria_options_do_page() {
 				</tr>
 
 				<?php
-				/**
-				 * Autoplay
-				 */
-				?>
-				<tr valign="top"><th scope="row"><?php _e( 'Autoplay' ); ?></th>
-					<td>
-						<input id="galleria_galleria[autoplay]" name="galleria_galleria[autoplay]" type="checkbox" value="1" <?php checked( '1', $options['autoplay'] ); ?> />
-						<label class="description" for="galleria_galleria[autoplay]"><?php _e( 'Check to play as a slideshow' ); ?></label>
-					</td>
-				</tr>
-
-				<?php
 				
 				/**
 				 * Height options
@@ -214,7 +202,7 @@ function galleria_galleria_options_do_page() {
 								echo $p . $r;
 							?>
 						</select>
-						<label class="description" for="galleria_galleria[transition]"><?php _e( 'How do you want Galleria Galleria to transition from image to image?' ); ?></label>
+						<label class="description" for="galleria_galleria[transition]"><?php _e( 'How galleria will move between images.' ); ?></label>
 					</td>
 				</tr>
 				
@@ -259,6 +247,18 @@ function galleria_galleria_options_do_page() {
 					</td>
 				</tr>
 				
+				<?php
+				/**
+				 * Autoplay
+				 */
+				?>
+				<tr valign="top"><th scope="row"><?php _e( 'Autoplay' ); ?></th>
+					<td>
+						<input id="galleria_galleria[autoplay]" name="galleria_galleria[autoplay]" type="checkbox" value="1" <?php checked( '1', $options['autoplay'] ); ?> />
+						<label class="description" for="galleria_galleria[autoplay]"><?php _e( 'Play all galleries as slideshows on page load.' ); ?></label>
+					</td>
+				</tr>
+				
 			</table>
 
 			<p class="submit">
@@ -279,7 +279,12 @@ function galleria_galleria_options_validate( $input ) {
 	if ( ! isset( $input['autoplay'] ) )
 		$input['autoplay'] = null;
 	$input['autoplay'] = ( $input['autoplay'] == 1 ? 1 : 0 );
-
+	
+	if ( ! isset( $input['color'] ) ) {
+		$input['color'] = '#000';
+	}
+	$input['color'] = wp_filter_nohtml_kses( $input['color'] );
+	
 	// Say our text option must be safe text with no HTML tags
 	//$input['height'] = wp_filter_nohtml_kses( $input['height'] );
 	//$input['width'] = wp_filter_nohtml_kses( $input['width'] );
@@ -308,6 +313,7 @@ function galleria_galleria_load_scripts( ) {
 	wp_print_scripts('photo-galleria');
 	galleria_galleria_scripts_head();
 }
+add_action('wp_footer', 'galleria_galleria_load_scripts' );
 
 /**
  * Add scripts to head
@@ -341,15 +347,15 @@ echo "\n<script>
 
   // run galleria and add some options
   echo "$('.galleria-gallery').galleria({
-  		autoplay: " . $autoplay . ",
+  	  autoplay: " . $autoplay . ",
       height: " . $height . ",
       width: " . $width . ",
       transition: '" . $transition . "',
       data_config: function(img) {
-          // will extract and return image captions from the source:
+          // will extract and return image captions and titles from the source:
           return  {
-              title: $(img).parent().next('strong').html(),
-              description: $(img).parent().next('strong').next().html()
+              title: $(img).attr('title'),
+              description: $(img).parents('.gallery-item').find('.gallery-caption').text()
           };
       }
   });
@@ -360,96 +366,86 @@ echo "\n<script>
 function galleria_galleria_css_head() {
 	$galleria_galleria = get_option( 'galleria_galleria' );
 	$color = $galleria_galleria['color'];
-	if ($color != '')
-		echo "<style type='text/css'>.galleria-container {background-color:{$color};}</style>";
+	$wp_default_sizes = wp_embed_defaults();
+	$height = $wp_default_sizes['height'];
+    $width = $wp_default_sizes['width'];
+	echo '<script type="text/javascript">document.getElementsByTagName("html")[0].className+=" js"</script>';
+	echo "<style type='text/css'>.galleria-gallery{ width: {$width}px; height: {$height}px;}.galleria-container{background-color:{$color}; } .js .galleria-gallery .gallery {display:none;}  .js .galleria-gallery{background-color:{$color}; } </style>";
 }
-
+add_action('wp_head','galleria_galleria_css_head');
 
 /**
  * Lets make new gallery shortcode
  */
 function galleria_galleria_shortcode($attr) {
-	global $post, $add_galleria_scripts;
-	
+	global $add_galleria_scripts;
 	$add_galleria_scripts = true;
-	$pid = $post->ID;
-	$galleria_galleria = get_option( 'galleria_galleria' );
-	$image_size = $galleria_galleria['image'];
-
-	// We're trusting author input, so let's at least make sure it looks like a valid orderby statement
-	if ( isset( $attr['orderby'] ) ) {
-		$attr['orderby'] = sanitize_sql_orderby( $attr['orderby'] );
-		if ( !$attr['orderby'] )
-			unset( $attr['orderby'] );
-	}
-	extract(shortcode_atts(array(
-		'orderby' => 'menu_order ASC, ID ASC',
-		'id' => $post->ID,
-		'size' => $image_size,
-	), $attr));
-
-	$id = intval($id);
-	$attachments = get_children("post_parent={$id}&post_type=attachment&post_mime_type=image&orderby={$orderby}");
-
-	if ( empty($attachments) )
-		return '';
-
-	if ( is_feed() ) {
-		$output = "\n";
-		foreach ( $attachments as $id => $attachment )
-			$output .= wp_get_attachment_link($id, $size, true) . "\n";
-		return $output;
-	}
-
-	// Build galleria markup
-	$output = apply_filters('gallery_style', '<div class="galleria-gallery"><!-- Begin Galleria -->');
-
-	// Loop through each image
-	foreach ( $attachments as $id => $attachment ) {
-		
-		// Attachment page ID
-		$att_page = get_attachment_link($id);
-		// Returns array
-		$img = wp_get_attachment_image_src($id, $image_size);
-		$img = $img[0];
-		$thumb = wp_get_attachment_image_src($id, 'thumbnail');
-		$thumb = $thumb[0];
-		// Set the image titles
-		$title = $attachment->post_title;
-		// Get the Permalink
-		$permalink = get_permalink();
-		// Set the image captions
-		$description = $attachment->post_content;
-		if($description == '') $description = $attachment->post_excerpt;
-
-		// Build html for each image
-		$output .= "\n\t\t<div>";
-		$output .= "\n\t\t\t<a href='".$img."'>";
-		$output .= "\n\t\t\t\t<img src='".$thumb."' longdesc='".$permalink."' alt='".$description."' title='".$description."' />";
-		$output .= "\n\t\t</a>";
-		$output .= "\n\t\t<strong>".$title."</strong>";
-		$output .= "\n\t\t<span>".$description."</span>";
-		$output .= "\n\t\t</div>";
 	
-	// End foreach
-	}
+	add_action('wp_get_attachment_link', 'galleria_galleria_get_attachment_link', 2, 6);
 	
-	// Close galleria markup
-	$output .= "\n\t</div><!-- End Galleria -->";
-	return $output;
+	$attr['link'] = 'file';
+	echo '<div class="galleria-gallery">';
+	echo gallery_shortcode($attr);
+	echo '</div><!-- end .galleria-gallery -->';
+	
+	remove_action('wp_get_attachment_link', 'galleria_galleria_get_attachment_link', 2, 6);
 }
 
-
+function galleria_galleria_get_attachment_link($content, $id = 0, $size = 'thumbnail', $permalink = false, $icon = false, $text = false) {
 	
-	function galleria_galleria_init() {
-		// Remove original wp gallery shortcode
-		remove_shortcode('gallery');
+	$id = intval($id);
+	$_post = & get_post( $id );
 
-		// Add our new shortcode with galleria markup
-		add_shortcode('gallery', 'galleria_galleria_shortcode');
-		add_action('wp_footer', 'galleria_galleria_load_scripts' );
-		add_action('wp_head','galleria_galleria_css_head');
-		
+	if ( ('attachment' != $_post->post_type) || !$url = wp_get_attachment_image_src($_post->ID, 'large') ) {
+		return __('Missing Attachment');
+	} else {
+		$url = $url[0];
 	}
-	add_action('init', 'galleria_galleria_init');
+	
+	
+	if ( $permalink )
+		$url = get_attachment_link($_post->ID);
+
+	$post_title = esc_attr($_post->post_title);
+
+	if ( $text ) {
+		$link_text = esc_attr($text);
+	} elseif ( ( is_int($size) && $size != 0 ) or ( is_string($size) && $size != 'none' ) or $size != false ) {
+		$link_text = wp_get_attachment_image($id, $size, $icon);
+	} else {
+		$link_text = '';
+	}
+
+	if( trim($link_text) == '' )
+		$link_text = $_post->post_title;
+
+	return apply_filters( 'galleria_galleria_get_attachment_link', "<a href='$url' title='$post_title'>$link_text</a>", $id, $size, $permalink, $icon, $text );
+}
+	
+function galleria_galleria_init() {
+	// Remove original wp gallery shortcode
+	remove_shortcode('gallery');
+	// Add our new shortcode with galleria markup
+	add_shortcode('gallery', 'galleria_galleria_shortcode');
+}
+add_action('init', 'galleria_galleria_init');
+	
+function galleria_galleria_plugin_action_links($links, $file) {
+    static $this_plugin;
+
+    if (!$this_plugin) {
+        $this_plugin = plugin_basename(__FILE__);
+    }
+
+    if ($file == $this_plugin) {
+        // The "page" query string value must be equal to the slug
+        // of the Settings admin page we defined earlier
+        $settings_link = '<a href="' . admin_url('options-general.php?page=galleria_galleria_options') . '">Settings</a>';
+        array_unshift($links, $settings_link);
+    }
+
+    return $links;
+}
+add_filter('plugin_action_links', 'galleria_galleria_plugin_action_links', 10, 2);
+
 ?>
