@@ -46,9 +46,72 @@ add_action( 'admin_init', 'galleria_galleria_options_init' );
  */
  
 function galleria_galleria_options_add_page() {
-	add_options_page( __( 'Galleria Galleria' ), __( 'Galleria Galleria' ), 'manage_options', 'galleria_galleria_options', 'galleria_galleria_options_do_page' );
+	$options_page = add_options_page( __( 'Galleria Galleria' ), __( 'Galleria Galleria' ), 'manage_options', 'galleria_galleria_options', 'galleria_galleria_options_do_page' );
+	
+	// Adds actions to hook in the required css and javascript
+	add_action("admin_print_styles-$options_page",'galleria_galleria_admin_styles');
+	add_action("admin_print_scripts-$options_page", 'galleria_galleria_admin_scripts');
 }
 add_action( 'admin_menu', 'galleria_galleria_options_add_page' );
+
+
+/* Loads admin page the CSS */
+
+function galleria_galleria_admin_styles() {
+	wp_enqueue_style('color-picker', GALLERIA_GALLERIA_PLUGIN_URL . '/css/colorpicker.css');
+}	
+
+/* Loads admin page javascript */
+
+function galleria_galleria_admin_scripts() {
+
+	// Inline scripts from options-interface.php
+	add_action('admin_head', 'galleria_galleria_admin_head');
+	
+	// Enqueued scripts
+	wp_enqueue_script('jquery-ui-core');
+	wp_enqueue_script('color-picker', GALLERIA_GALLERIA_PLUGIN_URL . '/js/colorpicker.js', array('jquery'));
+}
+
+function galleria_galleria_admin_head() {
+
+/**
+ * Prints out the inline javascript needed for the colorpicker and choosing
+ * the tabs in the panel.
+ */
+ 
+?>
+
+<script type="text/javascript">
+	jQuery(document).ready(function($) {
+			
+		// Color Picker
+		$('.colorSelector').each(function(){
+			var Othis = this; //cache a copy of the this variable for use inside nested function
+			var initialColor = $(Othis).next('input').attr('value');
+			$(this).ColorPicker({
+			color: initialColor,
+			onShow: function (colpkr) {
+			$(colpkr).fadeIn(500);
+			return false;
+			},
+			onHide: function (colpkr) {
+			$(colpkr).fadeOut(500);
+			return false;
+			},
+			onChange: function (hsb, hex, rgb) {
+			$(Othis).children('div').css('backgroundColor', '#' + hex);
+			$(Othis).next('input').attr('value','#' + hex);
+		}
+		});
+		}); //end color picker
+	});//end document ready functions
+</script>
+
+<?php
+}
+
+
 /**
  * Create arrays for our select and radio options
  */
@@ -113,11 +176,10 @@ function galleria_galleria_options_do_page() {
 		<h2><?php _e( 'Galleria Galleria' ); ?></h2>
 		
 		<p></p>
-		
 		<form method="post" action="options.php">
 			<?php settings_fields('galleria_galleria_options'); ?>
 			<?php $options = get_option('galleria_galleria'); ?>
-
+			
 			<table class="form-table">
 			
 				<?php
@@ -151,36 +213,6 @@ function galleria_galleria_options_do_page() {
 				<?php
 				
 				/**
-				 * Height options
-				 */
-				/*
-				?>
-				<tr valign="top"><th scope="row"><?php _e( 'Height' ); ?></th>
-					<td>
-						<input style="width:100px" id="galleria_galleria[height]" class="regular-text" type="text" name="galleria_galleria[height]" value="<?php esc_attr_e( $options['height'] ); ?>" />
-						<label class="description" for="galleria_galleria[height]"><?php _e( 'Set a maximum fixed height in pixels. Otherwise, things break.  Numbers only.  Example: 590' ); ?></label>
-					</td>
-				</tr>
-				
-				<?php
-				*/
-				
-				/**
-				 * Width options
-				 */
-				/*
-				?>
-				<tr valign="top"><th scope="row"><?php _e( 'Width' ); ?></th>
-					<td>
-						<input style="width:100px" id="galleria_galleria[width]" class="regular-text" type="text" name="galleria_galleria[width]" value="<?php esc_attr_e( $options['width'] ); ?>" />
-						<label class="description" for="galleria_galleria[width]"><?php _e( 'Set a maximum fixed width in pixels. This is theme-specific, so measure the width of the space Galleria Galleria will occupy.  Numbers only.  Example: 500' ); ?></label>
-					</td>
-				</tr>
-
-				<?php
-				*/
-				
-				/**
 				 * Transition options
 				 */
 				?>
@@ -206,6 +238,23 @@ function galleria_galleria_options_do_page() {
 					</td>
 				</tr>
 				
+				<?php	
+				
+				/**
+				 * Width and Height options
+				 */
+				
+				?>
+				<tr valign="top"><th scope="row"><?php _e( 'Gallery size' ); ?></th>
+					<td>
+						<label for="galleria_galleria[width]">Width</label>
+						<input name="galleria_galleria[width]" type="text" id="galleria_galleria[width]" value="<?php esc_attr_e( $options['width'] ); ?>" class="small-text">
+						<label for="galleria_galleria[height]">Height</label>
+						<input name="galleria_galleria[height]" type="text" id="galleria_galleria[height]" value="<?php esc_attr_e( $options['height'] ); ?>" class="small-text">
+						<label class="description" for="galleria_galleria[height]"><?php _e( "Defaults to your theme's max embed size at Settings &rarr; Media." ); ?></label>
+					</td>
+				</tr>
+		
 				<?php
 				
 				/**
@@ -214,8 +263,8 @@ function galleria_galleria_options_do_page() {
 				?>
 				<tr valign="top"><th scope="row"><?php _e( 'Background color' ); ?></th>
 					<td>
-						<input style="width:100px" id="galleria_galleria[color]" class="regular-text" type="text" name="galleria_galleria[color]" value="<?php esc_attr_e( $options['color'] ); ?>" />
-						<label class="description" for="galleria_galleria[color]"><?php _e( 'Must be a hexidecimal value, example: #000000.  Must include the #.' ); ?></label>
+						<div class="colorSelector"><div style="background-color:<?php esc_attr_e( $options['color'] ); ?>"></div></div><input id="galleria_galleria[color]" size="7" type="text" name="galleria_galleria[color]" value="<?php esc_attr_e( $options['color'] ); ?>" />
+						<label class="description" for="galleria_galleria[color]"><?php _e( '' ); ?></label>
 					</td>
 				</tr>
 				
@@ -225,7 +274,7 @@ function galleria_galleria_options_do_page() {
 				 * Image sizes
 				 */
 				?>
-				<tr valign="top"><th scope="row"><?php _e( 'Image Sizes' ); ?></th>
+				<tr valign="top"><th scope="row"><?php _e( 'Image Size' ); ?></th>
 					<td>
 						<select name="galleria_galleria[image]">
 							<?php
@@ -243,7 +292,7 @@ function galleria_galleria_options_do_page() {
 								echo $p . $r;
 							?>
 						</select>
-						<label class="description" for="galleria_galleria[image]"><?php _e( 'Select the size of the image you want this plugin to use.  These sizes are determined on Settings -> Media.' ); ?></label>
+						<label class="description" for="galleria_galleria[image]"><?php _e( 'Select the size of the image you want this plugin to use.  These sizes are determined at Settings &rarr; Media.' ); ?></label>
 					</td>
 				</tr>
 				
@@ -283,11 +332,13 @@ function galleria_galleria_options_validate( $input ) {
 	if ( ! isset( $input['color'] ) ) {
 		$input['color'] = '#000';
 	}
-	$input['color'] = wp_filter_nohtml_kses( $input['color'] );
+	
 	
 	// Say our text option must be safe text with no HTML tags
-	//$input['height'] = wp_filter_nohtml_kses( $input['height'] );
-	//$input['width'] = wp_filter_nohtml_kses( $input['width'] );
+	$input['color'] = wp_filter_nohtml_kses( $input['color'] );
+	$input['height'] = wp_filter_nohtml_kses( $input['height'] );
+	$input['width'] = wp_filter_nohtml_kses( $input['width'] );
+	
 	// Our select option must actually be in our array of select options
 	if ( ! array_key_exists( $input['design'], $design_options ) )
 		$input['design'] = null;
@@ -309,7 +360,7 @@ function galleria_galleria_load_scripts( ) {
 	if( !$add_galleria_scripts )
 		return;
 		
-	wp_enqueue_script('photo-galleria', plugins_url( 'galleria-1.2.2.min.js', __FILE__ ), array('jquery'));
+	wp_enqueue_script('photo-galleria', plugins_url( '/js/galleria-1.2.2.min.js', __FILE__ ), array('jquery'));
 	wp_print_scripts('photo-galleria');
 	galleria_galleria_scripts_head();
 }
@@ -336,8 +387,8 @@ function galleria_galleria_scripts_head(){
 		$autoplay = 'false'; 
 	}
 	$wp_default_sizes = wp_embed_defaults();
-	$height = $wp_default_sizes['height'];
-    $width = $wp_default_sizes['width'];
+	$height = $galleria_galleria['height'] ? $galleria_galleria['height'] : $wp_default_sizes['height'];
+    $width = $galleria_galleria['width'] ? $galleria_galleria['width'] : $wp_default_sizes['width'];
 	$transition = $galleria_galleria['transition'];
 	
 echo "\n<script>
@@ -348,7 +399,7 @@ echo "\n<script>
   // run galleria and add some options
   echo "$('.galleria-gallery').galleria({
   	  autoplay: " . $autoplay . ",
-      height: " . $height . ",
+      //height: " . $height . ",
       width: " . $width . ",
       transition: '" . $transition . "',
       data_config: function(img) {
@@ -367,8 +418,10 @@ function galleria_galleria_css_head() {
 	$galleria_galleria = get_option( 'galleria_galleria' );
 	$color = $galleria_galleria['color'];
 	$wp_default_sizes = wp_embed_defaults();
-	$height = $wp_default_sizes['height'];
-    $width = $wp_default_sizes['width'];
+	
+	$height = $galleria_galleria['height'] ? $galleria_galleria['height'] : $wp_default_sizes['height'];
+    $width = $galleria_galleria['width'] ? $galleria_galleria['width'] : $wp_default_sizes['width'];
+    
 	echo '<script type="text/javascript">document.getElementsByTagName("html")[0].className+=" js"</script>';
 	echo "<style type='text/css'>.galleria-gallery{ width: {$width}px; height: {$height}px;}.galleria-container{background-color:{$color}; } .js .galleria-gallery .gallery {display:none;}  .js .galleria-gallery{background-color:{$color}; } </style>";
 }
@@ -381,13 +434,23 @@ function galleria_galleria_shortcode($attr) {
 	global $add_galleria_scripts;
 	$add_galleria_scripts = true;
 	
+	//change default gallery_shortcode to link to images of a specified size instead of originals
 	add_action('wp_get_attachment_link', 'galleria_galleria_get_attachment_link', 2, 6);
 	
+	//force gallery to link to image files
 	$attr['link'] = 'file';
-	echo '<div class="galleria-gallery">';
+		
+	$style = '';
+	
+	if( isset( $attr['height'] ) && $height = intval( $attr['height'] ) ) {
+		$style = "style='height:{$height}px;'";
+	}
+	
+	echo "<div class='galleria-gallery' $style>";
 	echo gallery_shortcode($attr);
 	echo '</div><!-- end .galleria-gallery -->';
 	
+	//remove our action to avoid changing this behavior for others
 	remove_action('wp_get_attachment_link', 'galleria_galleria_get_attachment_link', 2, 6);
 }
 
