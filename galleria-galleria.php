@@ -251,7 +251,7 @@ function galleria_galleria_options_do_page() {
 						<input name="galleria_galleria[width]" type="text" id="galleria_galleria[width]" value="<?php esc_attr_e( $options['width'] ); ?>" class="small-text">
 						<label for="galleria_galleria[height]">Height</label>
 						<input name="galleria_galleria[height]" type="text" id="galleria_galleria[height]" value="<?php esc_attr_e( $options['height'] ); ?>" class="small-text">
-						<label class="description" for="galleria_galleria[height]"><?php _e( "Defaults to your theme's max embed size at Settings &rarr; Media." ); ?></label>
+						<label class="description" for="galleria_galleria[height]"><?php _e( "Defaults to your theme's max embed sizes at Settings &rarr; Media." ); ?></label>
 					</td>
 				</tr>
 		
@@ -455,11 +455,12 @@ function galleria_galleria_shortcode($attr) {
 }
 
 function galleria_galleria_get_attachment_link($content, $id = 0, $size = 'thumbnail', $permalink = false, $icon = false, $text = false) {
+	$galleria_galleria = get_option( 'galleria_galleria' );
 	
 	$id = intval($id);
 	$_post = & get_post( $id );
 
-	if ( ('attachment' != $_post->post_type) || !$url = wp_get_attachment_image_src($_post->ID, 'large') ) {
+	if ( ('attachment' != $_post->post_type) || !$url = wp_get_attachment_image_src($_post->ID, $galleria_galleria['image']) ) {
 		return __('Missing Attachment');
 	} else {
 		$url = $url[0];
