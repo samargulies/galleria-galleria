@@ -360,8 +360,8 @@ function galleria_galleria_load_scripts( ) {
 	if( !$add_galleria_scripts )
 		return;
 		
-	wp_enqueue_script('photo-galleria', plugins_url( '/js/galleria-1.2.2.min.js', __FILE__ ), array('jquery'));
-	wp_print_scripts('photo-galleria');
+	wp_enqueue_script('galleria', plugins_url( '/js/galleria-1.2.2.min.js', __FILE__ ), array('jquery'));
+	wp_print_scripts('galleria');
 	galleria_galleria_scripts_head();
 }
 add_action('wp_footer', 'galleria_galleria_load_scripts' );
