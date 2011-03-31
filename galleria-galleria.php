@@ -125,10 +125,12 @@ $design_options = array(
 		'value' =>	'dots',
 		'label' => __( 'Dots' )
 	),
+/*
 		'fullscreen' => array(
 		'value' =>	'fullscreen',
 		'label' => __( 'Fullscreen' )
 	)
+*/
 );
 
 $transition_options = array(
