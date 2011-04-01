@@ -125,18 +125,12 @@ $design_options = array(
 		'value' =>	'dots',
 		'label' => __( 'Dots' )
 	),
-<<<<<<< HEAD
-=======
 /*
->>>>>>> 35c5c655cc18e3740580345c3e138092eb06e20d
 		'fullscreen' => array(
 		'value' =>	'fullscreen',
 		'label' => __( 'Fullscreen' )
 	)
-<<<<<<< HEAD
-=======
 */
->>>>>>> 35c5c655cc18e3740580345c3e138092eb06e20d
 );
 
 $transition_options = array(
@@ -368,13 +362,8 @@ function galleria_galleria_load_scripts( ) {
 	if( !$add_galleria_scripts )
 		return;
 		
-<<<<<<< HEAD
-	wp_enqueue_script('photo-galleria', plugins_url( '/js/galleria-1.2.2.min.js', __FILE__ ), array('jquery'));
-	wp_print_scripts('photo-galleria');
-=======
 	wp_enqueue_script('galleria', plugins_url( '/js/galleria-1.2.2.min.js', __FILE__ ), array('jquery'));
 	wp_print_scripts('galleria');
->>>>>>> 35c5c655cc18e3740580345c3e138092eb06e20d
 	galleria_galleria_scripts_head();
 }
 add_action('wp_footer', 'galleria_galleria_load_scripts' );
