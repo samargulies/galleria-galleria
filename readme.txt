@@ -4,7 +4,7 @@ Donate link: https://github.com/samargulies/galleria-galleria/
 Tags: photo, photos, gallery, galleries, photo gallery, lightbox 
 Requires at least: 3.0
 Tested up to: 3.1
-Stable tag: 0.1
+Stable tag: 0.1a
 
 Transform standard WordPress galleries into galleria slideshows. 
 
