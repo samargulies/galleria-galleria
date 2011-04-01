@@ -4,7 +4,7 @@ Donate link: https://github.com/samargulies/galleria-galleria/
 Tags: photo, photos, gallery, galleries, photo gallery, lightbox 
 Requires at least: 3.0
 Tested up to: 3.1
-Stable tag: 0.1
+Stable tag: 0.1.1
 
 Transform standard WordPress galleries into galleria slideshows. 
 
@@ -31,6 +31,9 @@ Galleria Galleria is designed to only selectively load javascript to reduce the 
 This plugin uses the standard [gallery] shortcode to create slideshows. It also adds support for a per gallery height attribute in the format [gallery height=500] to create a gallery with a height of 500px.
 
 == Changelog ==
+
+= Version 0.1.1 =
+Display gallery where it is embedded instead of at the top of the post.
 
 = Version 0.1 =
 Initial commit

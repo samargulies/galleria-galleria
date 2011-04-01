@@ -3,7 +3,7 @@
 Plugin Name: Galleria Galleria
 Plugin URI: 
 Description: Transform standard WordPress galleries into galleria slideshows.
-Version: 0.1
+Version: 0.1.1
 Author: Sam Margulies
 Author URI: 
 License: GPL
@@ -448,12 +448,14 @@ function galleria_galleria_shortcode($attr) {
 		$style = "style='height:{$height}px;'";
 	}
 	
-	echo "<div class='galleria-gallery' $style>";
-	echo gallery_shortcode($attr);
-	echo '</div><!-- end .galleria-gallery -->';
+	$content = "<div class='galleria-gallery' $style>";
+	$content .= gallery_shortcode($attr);
+	$content .= '</div><!-- end .galleria-gallery -->';
 	
 	//remove our action to avoid changing this behavior for others
 	remove_action('wp_get_attachment_link', 'galleria_galleria_get_attachment_link', 2, 6);
+
+	return $content;
 }
 
 function galleria_galleria_get_attachment_link($content, $id = 0, $size = 'thumbnail', $permalink = false, $icon = false, $text = false) {
