@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Galleria Galleria
-Plugin URI: 
+Plugin URI: https://github.com/samargulies/galleria-galleria/
 Description: Transform standard WordPress galleries into galleria slideshows.
 Version: 0.1.1
 Author: Sam Margulies
@@ -16,7 +16,7 @@ http://wordpress.org/extend/plugins/photo-galleria/
 Bravo Aino!
 http://galleria.aino.se/
 
-Mr. Philip Arthur Moore for IE debugging
+Mr. Philip Arthur Moore for IE debugging of Photo Galleria
 http://www.philiparthurmoore.com
 
 */
@@ -73,102 +73,104 @@ function galleria_galleria_admin_scripts() {
 	wp_enqueue_script('color-picker', GALLERIA_GALLERIA_PLUGIN_URL . '/js/colorpicker.js', array('jquery'));
 }
 
-function galleria_galleria_admin_head() {
-
 /**
  * Prints out the inline javascript needed for the colorpicker and choosing
  * the tabs in the panel.
  */
  
-?>
-
-<script type="text/javascript">
-	jQuery(document).ready(function($) {
-			
-		// Color Picker
-		$('.colorSelector').each(function(){
-			var Othis = this; //cache a copy of the this variable for use inside nested function
-			var initialColor = $(Othis).next('input').attr('value');
-			$(this).ColorPicker({
-			color: initialColor,
-			onShow: function (colpkr) {
-			$(colpkr).fadeIn(500);
-			return false;
-			},
-			onHide: function (colpkr) {
-			$(colpkr).fadeOut(500);
-			return false;
-			},
-			onChange: function (hsb, hex, rgb) {
-			$(Othis).children('div').css('backgroundColor', '#' + hex);
-			$(Othis).next('input').attr('value','#' + hex);
-		}
-		});
-		}); //end color picker
-	});//end document ready functions
-</script>
-
-<?php
+function galleria_galleria_admin_head() {
+	?>
+	<script type="text/javascript">
+		jQuery(document).ready(function($) {
+				
+			// Color Picker
+			$('.colorSelector').each(function(){
+				var Othis = this; //cache a copy of the this variable for use inside nested function
+				var initialColor = $(Othis).next('input').attr('value');
+				$(this).ColorPicker({
+				color: initialColor,
+				onShow: function (colpkr) {
+				$(colpkr).fadeIn(500);
+				return false;
+				},
+				onHide: function (colpkr) {
+				$(colpkr).fadeOut(500);
+				return false;
+				},
+				onChange: function (hsb, hex, rgb) {
+				$(Othis).children('div').css('backgroundColor', '#' + hex);
+				$(Othis).next('input').attr('value','#' + hex);
+			}
+			});
+			}); //end color picker
+		});//end document ready functions
+	</script>
+	<?php
 }
-
 
 /**
  * Create arrays for our select and radio options
  */
 
-$design_options = array(
-	'classic' => array(
-		'value' =>	'classic',
-		'label' => __( 'Classic' )
-	),
-	'dots' => array(
-		'value' =>	'dots',
-		'label' => __( 'Dots' )
-	),
-/*
-		'fullscreen' => array(
-		'value' =>	'fullscreen',
-		'label' => __( 'Fullscreen' )
-	)
-*/
-);
+function galleria_galleria_default_options() {
 
-$transition_options = array(
-	'fade' => array(
-		'value' =>	'fade',
-		'label' => __( 'Fade' )
-	),
-	'flash' => array(
-		'value' =>	'flash',
-		'label' => __( 'Flash' )
-	),
-	'slide' => array(
-		'value' => 'slide',
-		'label' => __( 'Slide' )
-	),
-	'fadeslide' => array(
-		'value' => 'fadeslide',
-		'label' => __( 'Fade & Slide' )
-	)
-);
+	$options['design'] = array(
+		'classic' => array(
+			'value' =>	'classic',
+			'label' => __( 'Classic' )
+		),
+		'dots' => array(
+			'value' =>	'dots',
+			'label' => __( 'Dots' )
+		),
+	/*
+			'fullscreen' => array(
+			'value' =>	'fullscreen',
+			'label' => __( 'Fullscreen' )
+		)
+	*/
+	);
+	
+	$options['transition'] = array(
+		'fade' => array(
+			'value' =>	'fade',
+			'label' => __( 'Fade' )
+		),
+		'flash' => array(
+			'value' =>	'flash',
+			'label' => __( 'Flash' )
+		),
+		'slide' => array(
+			'value' => 'slide',
+			'label' => __( 'Slide' )
+		),
+		'fadeslide' => array(
+			'value' => 'fadeslide',
+			'label' => __( 'Fade & Slide' )
+		)
+	);
+	
+	$options['image'] = array(
+		'medium' => array(
+			'value' =>	'medium',
+			'label' => __( 'Medium' )
+		),
+		'large' => array(
+			'value' =>	'large',
+			'label' => __( 'Large' )
+		)
+	);
+	
+	return $options;
+}
 
-$image_options = array(
-	'medium' => array(
-		'value' =>	'medium',
-		'label' => __( 'Medium' )
-	),
-	'large' => array(
-		'value' =>	'large',
-		'label' => __( 'Large' )
-	)
-);
 
 /**
  * Create the options page
  */
  
 function galleria_galleria_options_do_page() {
-	global $design_options, $transition_options, $image_options;
+	$defaults = galleria_galleria_default_options();
 
 	if ( ! isset( $_REQUEST['updated'] ) )
 		$_REQUEST['updated'] = false;
@@ -198,7 +200,7 @@ function galleria_galleria_options_do_page() {
 								$p = '';
 								$r = '';
 
-								foreach ( $design_options as $option ) {
+								foreach ( $defaults['design'] as $option ) {
 									$label = $option['label'];
 									if ( $selected == $option['value'] ) // Make default first in list
 										$p = "\n\t<option style=\"padding-right: 10px;\" selected='selected' value='" . esc_attr( $option['value'] ) . "'>$label</option>";
@@ -226,7 +228,7 @@ function galleria_galleria_options_do_page() {
 								$p = '';
 								$r = '';
 
-								foreach ( $transition_options as $option ) {
+								foreach ( $defaults['transition'] as $option ) {
 									$label = $option['label'];
 									if ( $selected == $option['value'] ) // Make default first in list
 										$p = "\n\t<option style=\"padding-right: 10px;\" selected='selected' value='" . esc_attr( $option['value'] ) . "'>$label</option>";
@@ -284,7 +286,7 @@ function galleria_galleria_options_do_page() {
 								$p = '';
 								$r = '';
 
-								foreach ( $image_options as $option ) {
+								foreach ( $defaults['image'] as $option ) {
 									$label = $option['label'];
 									if ( $selected == $option['value'] ) // Make default first in list
 										$p = "\n\t<option style=\"padding-right: 10px;\" selected='selected' value='" . esc_attr( $option['value'] ) . "'>$label</option>";
@@ -324,7 +326,7 @@ function galleria_galleria_options_do_page() {
  * Sanitize and validate input. Accepts an array, return a sanitized array.
  */
 function galleria_galleria_options_validate( $input ) {
-	global $design_options, $transition_options;
+	$defaults = galleria_galleria_default_options();
 
 	// Our checkbox value is either 0 or 1
 	if ( ! isset( $input['autoplay'] ) )
@@ -332,7 +334,7 @@ function galleria_galleria_options_validate( $input ) {
 	$input['autoplay'] = ( $input['autoplay'] == 1 ? 1 : 0 );
 	
 	if ( ! isset( $input['color'] ) ) {
-		$input['color'] = '#000';
+		$input['color'] = '#000000';
 	}
 	
 	
@@ -342,11 +344,11 @@ function galleria_galleria_options_validate( $input ) {
 	$input['width'] = wp_filter_nohtml_kses( $input['width'] );
 	
 	// Our select option must actually be in our array of select options
-	if ( ! array_key_exists( $input['design'], $design_options ) )
+	if ( ! array_key_exists( $input['design'], $defaults['design'] ) )
 		$input['design'] = null;
 
 	// Our select option must actually be in our array of select options
-	if ( ! array_key_exists( $input['transition'], $transition_options ) )
+	if ( ! array_key_exists( $input['transition'], $defaults['transition'] ) )
 		$input['transition'] = null;
 
 	return $input;
@@ -364,14 +366,15 @@ function galleria_galleria_load_scripts( ) {
 		
 	wp_enqueue_script('galleria', plugins_url( '/js/galleria-1.2.2.min.js', __FILE__ ), array('jquery'));
 	wp_print_scripts('galleria');
-	galleria_galleria_scripts_head();
+	galleria_galleria_script_options();
 }
 add_action('wp_footer', 'galleria_galleria_load_scripts' );
 
 /**
  * Add scripts to head
  */
-function galleria_galleria_scripts_head(){
+ 
+function galleria_galleria_script_options(){
 	// Retreive our plugin options
 	$galleria_galleria = get_option( 'galleria_galleria' );
 	
