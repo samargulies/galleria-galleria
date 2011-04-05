@@ -27,7 +27,7 @@ http://www.philiparthurmoore.com
  
 define ( 'GALLERIA_GALLERIA_PLUGIN_URL', WP_PLUGIN_URL . '/' . dirname( plugin_basename(__FILE__) ) );
 define ( 'GALLERIA_GALLERIA_PLUGIN_DIR', WP_PLUGIN_DIR . '/' . dirname( plugin_basename(__FILE__) ) );
-define ( 'GALLERIA_GALLERIA_USER_THEME_DIR',  '/galleria-themes/' );
+define ( 'GALLERIA_GALLERIA_USER_THEME_FOLDER',  '/galleria-themes/' );
 
 /**
  * Add plugin options & menu
@@ -118,7 +118,7 @@ function galleria_galleria_default_options() {
 
 	//Stylesheets Reader
 	$alt_stylesheets = array();
-	$alt_stylesheets_path = get_stylesheet_directory() . GALLERIA_GALLERIA_USER_THEME_DIR;
+	$alt_stylesheets_path = get_stylesheet_directory() . GALLERIA_GALLERIA_USER_THEME_FOLDER;
 	if ( is_dir($alt_stylesheets_path) ) {
 	    if ($alt_stylesheet_dir = opendir($alt_stylesheets_path) ) { 
 	        while ( ($alt_stylesheet_file = readdir($alt_stylesheet_dir)) !== false ) {
@@ -362,7 +362,7 @@ function galleria_galleria_options_validate( $input ) {
 	}
 	
 	
-	// Say our text option must be safe text with no HTML tags
+	// Our text option must be safe text with no HTML tags
 	$input['color'] = wp_filter_nohtml_kses( $input['color'] );
 	$input['height'] = wp_filter_nohtml_kses( $input['height'] );
 	$input['width'] = wp_filter_nohtml_kses( $input['width'] );
@@ -404,13 +404,13 @@ function galleria_galleria_script_options(){
 	
 	$design = $galleria_galleria['design'];
 		if( $design == 'classic' || $design == '' ) {
-				$design = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/classic/galleria.classic.min.js';
+			$design_url = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/classic/galleria.classic.min.js';
 		} else if( $design == 'dots' ) {
 			$design_url = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/dots/galleria.dots.min.js';
 		} else if( $design == 'fullscreen' ) {
 			$design_url = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/fullscreen/galleria.fullscreen.js';
 		} else if( stristr($design, '.js') !== false ) {
-			$design_url = get_stylesheet_directory_uri() . GALLERIA_GALLERIA_USER_THEME_DIR . $design;
+			$design_url = get_stylesheet_directory_uri() . GALLERIA_GALLERIA_USER_THEME_FOLDER . $design;
 		}
 	$autoplay = $galleria_galleria['autoplay'];
 	if ($autoplay == 1) { 
