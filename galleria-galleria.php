@@ -548,7 +548,7 @@ function galleria_galleria_plugin_action_links($links, $file) {
         // The "page" query string value must be equal to the slug
         // of the Settings admin page we defined earlier
         $settings_link = '<a href="' . admin_url('options-general.php?page=galleria_galleria_options') . '">Settings</a>';
-        array_unshift($links, $settings_link);
+        array_push($links, $settings_link);
     }
 
     return $links;
