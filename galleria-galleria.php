@@ -221,17 +221,17 @@ function galleria_galleria_options_do_page() {
 						<select name="galleria_galleria[design]">
 							<?php
 								$selected = $options['design'];
-								$p = '';
-								$r = '';
 
 								foreach ( $defaults['design'] as $option ) {
 									$label = $option['label'];
-									if ( $selected == $option['value'] ) // Make default first in list
-										$p = "\n\t<option style=\"padding-right: 10px;\" selected='selected' value='" . esc_attr( $option['value'] ) . "'>$label</option>";
-									else
-										$r .= "\n\t<option style=\"padding-right: 10px;\" value='" . esc_attr( $option['value'] ) . "'>$label</option>";
+									$value = esc_attr( $option['value'] );
+									
+									echo "<option style='padding-right: 10px;' value='$value'";
+									if ( $selected == $option['value'] ) {
+										echo ' selected=selected ';
+									}
+									echo ">$label</option>";
 								}
-								echo $p . $r;
 							?>
 						</select>
 						<label class="description" for="galleria_galleria[design]"><?php _e( 'Select a design.  Don\'t be shy.' ); ?></label>
@@ -249,17 +249,17 @@ function galleria_galleria_options_do_page() {
 						<select name="galleria_galleria[transition]">
 							<?php
 								$selected = $options['transition'];
-								$p = '';
-								$r = '';
-
+								
 								foreach ( $defaults['transition'] as $option ) {
 									$label = $option['label'];
-									if ( $selected == $option['value'] ) // Make default first in list
-										$p = "\n\t<option style=\"padding-right: 10px;\" selected='selected' value='" . esc_attr( $option['value'] ) . "'>$label</option>";
-									else
-										$r .= "\n\t<option style=\"padding-right: 10px;\" value='" . esc_attr( $option['value'] ) . "'>$label</option>";
+									$value = esc_attr( $option['value'] );
+									
+									echo "<option style='padding-right: 10px;' value='$value'";
+									if ( $selected == $option['value'] ) {
+										echo ' selected=selected ';
+									}
+									echo ">$label</option>";
 								}
-								echo $p . $r;
 							?>
 						</select>
 						<label class="description" for="galleria_galleria[transition]"><?php _e( 'How galleria will move between images.' ); ?></label>
@@ -307,17 +307,17 @@ function galleria_galleria_options_do_page() {
 						<select name="galleria_galleria[image]">
 							<?php
 								$selected = $options['image'];
-								$p = '';
-								$r = '';
-
+								
 								foreach ( $defaults['image'] as $option ) {
 									$label = $option['label'];
-									if ( $selected == $option['value'] ) // Make default first in list
-										$p = "\n\t<option style=\"padding-right: 10px;\" selected='selected' value='" . esc_attr( $option['value'] ) . "'>$label</option>";
-									else
-										$r .= "\n\t<option style=\"padding-right: 10px;\" value='" . esc_attr( $option['value'] ) . "'>$label</option>";
+									$value = esc_attr( $option['value'] );
+									
+									echo "<option style='padding-right: 10px;' value='$value'";
+									if ( $selected == $option['value'] ) {
+										echo ' selected=selected ';
+									}
+									echo ">$label</option>";
 								}
-								echo $p . $r;
 							?>
 						</select>
 						<label class="description" for="galleria_galleria[image]"><?php _e( 'Select the size of the image you want this plugin to use.  These sizes are determined at Settings &rarr; Media.' ); ?></label>
