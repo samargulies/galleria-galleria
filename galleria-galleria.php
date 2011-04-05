@@ -3,10 +3,10 @@
 Plugin Name: Galleria Galleria
 Plugin URI: https://github.com/samargulies/galleria-galleria/
 Description: Transform standard WordPress galleries into galleria slideshows.
-Version: 0.1.1
+Version: 0.2
 Author: Sam Margulies
 Author URI: 
-License: GPL
+License: GPLv2
 
 .
 
@@ -27,6 +27,7 @@ http://www.philiparthurmoore.com
  
 define ( 'GALLERIA_GALLERIA_PLUGIN_URL', WP_PLUGIN_URL . '/' . dirname( plugin_basename(__FILE__) ) );
 define ( 'GALLERIA_GALLERIA_PLUGIN_DIR', WP_PLUGIN_DIR . '/' . dirname( plugin_basename(__FILE__) ) );
+define ( 'GALLERIA_GALLERIA_USER_THEME_DIR',  '/galleria-themes/' );
 
 /**
  * Add plugin options & menu
@@ -41,6 +42,7 @@ function galleria_galleria_options_init(){
 	register_setting( 'galleria_galleria_options', 'galleria_galleria', 'galleria_galleria_options_validate' );
 }
 add_action( 'admin_init', 'galleria_galleria_options_init' );
+
 /**
  * Load up the menu page
  */
@@ -114,6 +116,19 @@ function galleria_galleria_admin_head() {
 
 function galleria_galleria_default_options() {
 
+	//Stylesheets Reader
+	$alt_stylesheets = array();
+	$alt_stylesheets_path = get_stylesheet_directory() . GALLERIA_GALLERIA_USER_THEME_DIR;
+	if ( is_dir($alt_stylesheets_path) ) {
+	    if ($alt_stylesheet_dir = opendir($alt_stylesheets_path) ) { 
+	        while ( ($alt_stylesheet_file = readdir($alt_stylesheet_dir)) !== false ) {
+	            if( stristr($alt_stylesheet_file, ".js") !== false) {
+	                $alt_stylesheets[] = $alt_stylesheet_file;
+	            }
+	        }    
+	    }
+	}
+	
 	$options['design'] = array(
 		'classic' => array(
 			'value' =>	'classic',
@@ -130,6 +145,15 @@ function galleria_galleria_default_options() {
 		)
 	*/
 	);
+	
+	if( !empty($alt_stylesheets) ) {
+		foreach($alt_stylesheets as $alt_stylesheet) {
+			$options['design'][$alt_stylesheet] = array(
+				'value' =>	$alt_stylesheet,
+				'label' => $alt_stylesheet
+			);
+		}
+	}
 	
 	$options['transition'] = array(
 		'fade' => array(
@@ -379,12 +403,15 @@ function galleria_galleria_script_options(){
 	$galleria_galleria = get_option( 'galleria_galleria' );
 	
 	$design = $galleria_galleria['design'];
-		if ($design == 'classic' || $design == '') {
-				$design = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/classic/galleria.classic.min.js';}
-			elseif ($design == 'dots') {
-				$design = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/dots/galleria.dots.min.js';}
-			elseif ($design == 'fullscreen') {
-				$design = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/fullscreen/galleria.fullscreen.js';}
+		if( $design == 'classic' || $design == '' ) {
+				$design = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/classic/galleria.classic.min.js';
+		} else if( $design == 'dots' ) {
+			$design_url = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/dots/galleria.dots.min.js';
+		} else if( $design == 'fullscreen' ) {
+			$design_url = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/fullscreen/galleria.fullscreen.js';
+		} else if( stristr($design, '.js') !== false ) {
+			$design_url = get_stylesheet_directory_uri() . GALLERIA_GALLERIA_USER_THEME_DIR . $design;
+		}
 	$autoplay = $galleria_galleria['autoplay'];
 	if ($autoplay == 1) { 
 		$autoplay = '5000'; 
@@ -399,7 +426,7 @@ function galleria_galleria_script_options(){
 echo "\n<script>
 	jQuery(document).ready(function($){
   // Load theme
-  Galleria.loadTheme('" . $design . "');\n\t";
+  Galleria.loadTheme('" . $design_url . "');\n\t";
 
   // run galleria and add some options
   echo "$('.galleria-gallery').galleria({
@@ -427,8 +454,17 @@ function galleria_galleria_css_head() {
 	$height = $galleria_galleria['height'] ? $galleria_galleria['height'] : $wp_default_sizes['height'];
     $width = $galleria_galleria['width'] ? $galleria_galleria['width'] : $wp_default_sizes['width'];
     
-	echo '<script type="text/javascript">document.getElementsByTagName("html")[0].className+=" js"</script>';
-	echo "<style type='text/css'>.galleria-gallery{ width: {$width}px; height: {$height}px;}.galleria-container{background-color:{$color}; } .js .galleria-gallery .gallery {display:none;}  .js .galleria-gallery{background-color:{$color}; } </style>";
+	?>
+	<script type="text/javascript">
+	document.documentElement.className += ' galleria-galleria-active';
+	</script>
+	<?php
+	echo "<style type='text/css'>
+	.galleria-gallery{ width: {$width}px; height: {$height}px;}
+	.galleria-container{background-color:{$color}; }
+	.galleria-galleria-active .galleria-gallery .gallery {display:none;} 
+	.galleria-galleria-active .galleria-gallery{background-color:{$color}; }
+	</style>";
 }
 add_action('wp_head','galleria_galleria_css_head');
 
