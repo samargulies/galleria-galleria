@@ -3,7 +3,7 @@ Contributors: gluten
 Donate link: https://github.com/samargulies/galleria-galleria/
 Tags: photo, photos, gallery, galleries, photo gallery, lightbox 
 Requires at least: 3.0
-Tested up to: 3.1
+Tested up to: 3.1.1
 Stable tag: 0.2
 
 Transform standard WordPress galleries into galleria slideshows. 
@@ -29,7 +29,7 @@ Links: [github](https://github.com/samargulies/galleria-galleria/)
 = How is this plugin different from other Wordpress gallery plugins? =
 Galleria Galleria is designed to only selectively load javascript to reduce the load time of your site. It also works seamlessly with galleries you have already created for your site in Wordpress. 
 = How can I customize my galleries using this plugin? =
-Galleria Galleria gives you a choice of two build-in themes, transitions and background color. Beyond that, it also supports custom built Galleria themes and [paid themes](http://galleria.aino.se/themes/) (see [other notes](http://wordpress.org/extend/plugins/galleria-galleria/other_notes/) for more information.
+Galleria Galleria gives you a choice of two build-in themes, transitions and background color. Beyond that, it also supports custom built Galleria themes and [paid themes](http://galleria.aino.se/themes/) (see [other notes](http://wordpress.org/extend/plugins/galleria-galleria/other_notes/) for more information.)
 
 == Other Notes ==
 
