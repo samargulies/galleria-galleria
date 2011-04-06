@@ -156,6 +156,12 @@ function galleria_galleria_default_options() {
 	}
 	
 	$options['transition'] = array(
+/*
+		'default' => array(
+			'value' =>	'',
+			'label' => __( 'Default Transition' )
+		),
+*/
 		'fade' => array(
 			'value' =>	'fade',
 			'label' => __( 'Fade' )
@@ -163,6 +169,10 @@ function galleria_galleria_default_options() {
 		'flash' => array(
 			'value' =>	'flash',
 			'label' => __( 'Flash' )
+		),
+		'pulse' => array(
+			'value' =>	'pulse',
+			'label' => __( 'Pulse' )
 		),
 		'slide' => array(
 			'value' => 'slide',
@@ -447,6 +457,7 @@ echo "\n<script>
 }
 
 function galleria_galleria_css_head() {
+	
 	$galleria_galleria = get_option( 'galleria_galleria' );
 	$color = $galleria_galleria['color'];
 	$wp_default_sizes = wp_embed_defaults();
