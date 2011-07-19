@@ -3,7 +3,7 @@
 Plugin Name: Galleria Galleria
 Plugin URI: https://github.com/samargulies/galleria-galleria/
 Description: Transform standard WordPress galleries into galleria slideshows.
-Version: 0.2
+Version: 0.3a
 Author: Sam Margulies
 Author URI: 
 License: GPLv2
@@ -32,12 +32,11 @@ define ( 'GALLERIA_GALLERIA_USER_THEME_FOLDER',  '/galleria-themes/' );
 /**
  * Add plugin options & menu
  */
- 
+
 
 /**
  * Init plugin options to white list our options
  */
- 
 function galleria_galleria_options_init(){
 	register_setting( 'galleria_galleria_options', 'galleria_galleria', 'galleria_galleria_options_validate' );
 }
@@ -46,7 +45,6 @@ add_action( 'admin_init', 'galleria_galleria_options_init' );
 /**
  * Load up the menu page
  */
- 
 function galleria_galleria_options_add_page() {
 	$options_page = add_options_page( __( 'Galleria Galleria' ), __( 'Galleria Galleria' ), 'manage_options', 'galleria_galleria_options', 'galleria_galleria_options_do_page' );
 	
@@ -58,13 +56,11 @@ add_action( 'admin_menu', 'galleria_galleria_options_add_page' );
 
 
 /* Loads admin page the CSS */
-
 function galleria_galleria_admin_styles() {
 	wp_enqueue_style('color-picker', GALLERIA_GALLERIA_PLUGIN_URL . '/css/colorpicker.css');
 }	
 
 /* Loads admin page javascript */
-
 function galleria_galleria_admin_scripts() {
 
 	// Inline scripts from options-interface.php
@@ -79,7 +75,6 @@ function galleria_galleria_admin_scripts() {
  * Prints out the inline javascript needed for the colorpicker and choosing
  * the tabs in the panel.
  */
- 
 function galleria_galleria_admin_head() {
 	?>
 	<script type="text/javascript">
@@ -113,7 +108,6 @@ function galleria_galleria_admin_head() {
 /**
  * Create arrays for our select and radio options
  */
-
 function galleria_galleria_default_options() {
 
 	//Stylesheets Reader
@@ -156,12 +150,10 @@ function galleria_galleria_default_options() {
 	}
 	
 	$options['transition'] = array(
-/*
 		'default' => array(
 			'value' =>	'',
 			'label' => __( 'Default Transition' )
 		),
-*/
 		'fade' => array(
 			'value' =>	'fade',
 			'label' => __( 'Fade' )
@@ -183,26 +175,26 @@ function galleria_galleria_default_options() {
 			'label' => __( 'Fade & Slide' )
 		)
 	);
+	$options['color'] = "";
 	
 	$options['image'] = array(
-		'medium' => array(
-			'value' =>	'medium',
-			'label' => __( 'Medium' )
-		),
 		'large' => array(
 			'value' =>	'large',
 			'label' => __( 'Large' )
+		),
+		'medium' => array(
+			'value' =>	'medium',
+			'label' => __( 'Medium' )
 		)
 	);
 	
-	return $options;
+	return apply_filters( 'galleria_galleria_default_options', $options );
 }
 
 
 /**
  * Create the options page
  */
- 
 function galleria_galleria_options_do_page() {
 	$defaults = galleria_galleria_default_options();
 
@@ -281,7 +273,6 @@ function galleria_galleria_options_do_page() {
 				/**
 				 * Width and Height options
 				 */
-				
 				?>
 				<tr valign="top"><th scope="row"><?php _e( 'Gallery size' ); ?></th>
 					<td>
@@ -367,10 +358,6 @@ function galleria_galleria_options_validate( $input ) {
 		$input['autoplay'] = null;
 	$input['autoplay'] = ( $input['autoplay'] == 1 ? 1 : 0 );
 	
-	if ( ! isset( $input['color'] ) ) {
-		$input['color'] = '#000000';
-	}
-	
 	
 	// Our text option must be safe text with no HTML tags
 	$input['color'] = wp_filter_nohtml_kses( $input['color'] );
@@ -391,14 +378,13 @@ function galleria_galleria_options_validate( $input ) {
 /**
  * Load javascripts
  */
-	
 function galleria_galleria_load_scripts( ) {
 	global $add_galleria_scripts;
 	
 	if( !$add_galleria_scripts )
 		return;
 		
-	wp_enqueue_script('galleria', plugins_url( '/js/galleria-1.2.2.min.js', __FILE__ ), array('jquery'));
+	wp_enqueue_script('galleria', GALLERIA_GALLERIA_PLUGIN_URL . '/js/galleria-1.2.4.min.js', array('jquery'), '1.2.4');
 	wp_print_scripts('galleria');
 	galleria_galleria_script_options();
 }
@@ -407,14 +393,13 @@ add_action('wp_footer', 'galleria_galleria_load_scripts' );
 /**
  * Add scripts to head
  */
- 
 function galleria_galleria_script_options(){
 	// Retreive our plugin options
 	$galleria_galleria = get_option( 'galleria_galleria' );
 	
 	$design = $galleria_galleria['design'];
 		if( $design == 'classic' || $design == '' ) {
-			$design_url = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/classic/galleria.classic.min.js';
+			$design_url = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/classic/galleria.classic.min.js?v=20110607';
 		} else if( $design == 'dots' ) {
 			$design_url = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/dots/galleria.dots.min.js';
 		} else if( $design == 'fullscreen' ) {
@@ -429,31 +414,43 @@ function galleria_galleria_script_options(){
 		$autoplay = 'false'; 
 	}
 	$wp_default_sizes = wp_embed_defaults();
-	$height = $galleria_galleria['height'] ? $galleria_galleria['height'] : $wp_default_sizes['height'];
     $width = $galleria_galleria['width'] ? $galleria_galleria['width'] : $wp_default_sizes['width'];
-	$transition = $galleria_galleria['transition'];
+	if( $galleria_galleria['transition'] ) {
+		$transition = "transition: '" . $galleria_galleria['transition'] . "',\n";
+	} else {
+		$transition = '';
+	}
+	// hook to allow users to add any other custom options
+	$user_options = apply_filters('galleria_galleria_theme_options', '');
+
+	if( ! empty( $user_options ) ) {
+		$user_options .= ",";
+	}
+
 	
-echo "\n<script>
-	jQuery(document).ready(function($){
-  // Load theme
-  Galleria.loadTheme('" . $design_url . "');\n\t";
+echo "
+<script>
+jQuery(document).ready(function($){
+// Load theme
+  Galleria.loadTheme('" . $design_url . "');";
 
   // run galleria and add some options
-  echo "$('.galleria-gallery').galleria({
-  	  autoplay: " . $autoplay . ",
-      //height: " . $height . ",
-      width: " . $width . ",
-      transition: '" . $transition . "',
-      data_config: function(img) {
-          // will extract and return image captions and titles from the source:
-          return  {
-              title: $(img).attr('title'),
-              description: $(img).parents('.gallery-item').find('.gallery-caption').text()
-          };
-      }
-  });
-  });
-  </script>\n";
+  echo "
+  $('.galleria-gallery').galleria({
+	autoplay: " . $autoplay . ",
+	width: " . $width . ", 
+	" . $transition .
+      $user_options . "
+	data_config: function(img) {
+		// will extract and return image captions and titles from the source:
+		return  {
+			title: $(img).attr('title'),
+			description: $(img).parents('.gallery-item').find('.gallery-caption').text()
+		};
+	}
+  }); 
+});
+</script>\n";
 }
 
 function galleria_galleria_css_head() {
@@ -494,7 +491,8 @@ function galleria_galleria_shortcode($attr) {
 		
 	$style = '';
 	
-	if( isset( $attr['height'] ) && $height = intval( $attr['height'] ) ) {
+	if( isset( $attr['height'] ) ) {
+		$height = intval( $attr['height'] );
 		$style = "style='height:{$height}px;'";
 	}
 	
@@ -548,7 +546,7 @@ function galleria_galleria_init() {
 }
 add_action('init', 'galleria_galleria_init');
 	
-function galleria_galleria_plugin_action_links($links, $file) {
+function galleria_galleria_plugin_action_links( $links, $file ) {
     static $this_plugin;
 
     if (!$this_plugin) {
@@ -559,7 +557,8 @@ function galleria_galleria_plugin_action_links($links, $file) {
         // The "page" query string value must be equal to the slug
         // of the Settings admin page we defined earlier
         $settings_link = '<a href="' . admin_url('options-general.php?page=galleria_galleria_options') . '">Settings</a>';
-        array_push($links, $settings_link);
+        // add the settings page link to the beginning of the array
+        array_unshift($links, $settings_link);
     }
 
     return $links;
