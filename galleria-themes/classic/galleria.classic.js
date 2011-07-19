@@ -1,5 +1,5 @@
 /**
- * @preserve Galleria Classic Theme 2011-02-14
+ * @preserve Galleria Classic Theme 2011-06-07
  * http://galleria.aino.se
  *
  * Copyright (c) 2011, Aino
@@ -68,6 +68,8 @@ Galleria.addTheme({
                 if ( e.index === options.show ) {
                     $(e.thumbTarget).css('opacity',1);
                 }
+            } else {
+                $(e.thumbTarget).css('opacity', e.index == options.show ? 1 : 0.6);
             }
         });
         
