@@ -464,14 +464,14 @@ function galleria_galleria_css_head() {
     
 	?>
 	<script type="text/javascript">
-	document.documentElement.className += ' galleria-galleria-active';
+	document.documentElement.className += ' gg-active';
 	</script>
 	<?php
 	echo "<style type='text/css'>
-	.galleria-gallery{ width: {$width}px; height: {$height}px;}
-	.galleria-container{background-color:{$color}; }
-	.galleria-galleria-active .galleria-gallery .gallery {display:none;} 
-	.galleria-galleria-active .galleria-gallery{background-color:{$color}; }
+	.gg-active .galleria-gallery{ width: {$width}px; height: {$height}px; }
+	.gg-active .galleria-container{ background-color:{$color}; }
+	.gg-active .galleria-gallery .gallery{ display:none; } 
+	.gg-active .galleria-gallery{ background-color:{$color}; }
 	</style>";
 }
 add_action('wp_head','galleria_galleria_css_head');
