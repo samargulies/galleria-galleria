@@ -424,7 +424,7 @@ function galleria_galleria_script_options(){
 	$user_options = apply_filters('galleria_galleria_theme_options', '');
 
 	if( ! empty( $user_options ) ) {
-		$user_options .= ",";
+		$user_options = "," . $user_options;
 	}
 
 	
@@ -439,15 +439,14 @@ jQuery(document).ready(function($){
   $('.galleria-gallery').galleria({
 	autoplay: " . $autoplay . ",
 	width: " . $width . ", 
-	" . $transition .
-      $user_options . "
+	" . $transition . "
 	data_config: function(img) {
 		// will extract and return image captions and titles from the source:
 		return  {
 			title: $(img).attr('title'),
 			description: $(img).parents('.gallery-item').find('.gallery-caption').text()
 		};
-	}
+	} " . $user_options . "
   }); 
 });
 </script>\n";
