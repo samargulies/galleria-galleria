@@ -25,9 +25,9 @@ http://www.philiparthurmoore.com
  * Define plugin constants
  */
  
-define ( 'GALLERIA_GALLERIA_PLUGIN_URL', WP_PLUGIN_URL . '/' . dirname( plugin_basename(__FILE__) ) );
-define ( 'GALLERIA_GALLERIA_PLUGIN_DIR', WP_PLUGIN_DIR . '/' . dirname( plugin_basename(__FILE__) ) );
-define ( 'GALLERIA_GALLERIA_USER_THEME_FOLDER',  '/galleria-themes/' );
+define ( 'GG_PLUGIN_URL', WP_PLUGIN_URL . '/' . dirname( plugin_basename(__FILE__) ) );
+define ( 'GG_PLUGIN_DIR', WP_PLUGIN_DIR . '/' . dirname( plugin_basename(__FILE__) ) );
+define ( 'GG_USER_THEME_FOLDER',  '/galleria-themes/' );
 
 /**
  * Add plugin options & menu
@@ -57,7 +57,7 @@ add_action( 'admin_menu', 'galleria_galleria_options_add_page' );
 
 /* Loads admin page the CSS */
 function galleria_galleria_admin_styles() {
-	wp_enqueue_style('color-picker', GALLERIA_GALLERIA_PLUGIN_URL . '/css/colorpicker.css');
+	wp_enqueue_style('color-picker', GG_PLUGIN_URL . '/css/colorpicker.css');
 }	
 
 /* Loads admin page javascript */
@@ -68,7 +68,7 @@ function galleria_galleria_admin_scripts() {
 	
 	// Enqueued scripts
 	wp_enqueue_script('jquery-ui-core');
-	wp_enqueue_script('color-picker', GALLERIA_GALLERIA_PLUGIN_URL . '/js/colorpicker.js', array('jquery'));
+	wp_enqueue_script('color-picker', GG_PLUGIN_URL . '/js/colorpicker.js', array('jquery'));
 }
 
 /**
@@ -112,7 +112,7 @@ function galleria_galleria_default_options() {
 
 	//Stylesheets Reader
 	$alt_stylesheets = array();
-	$alt_stylesheets_path = get_stylesheet_directory() . GALLERIA_GALLERIA_USER_THEME_FOLDER;
+	$alt_stylesheets_path = get_stylesheet_directory() . GG_USER_THEME_FOLDER;
 	if ( is_dir($alt_stylesheets_path) ) {
 	    if ($alt_stylesheet_dir = opendir($alt_stylesheets_path) ) { 
 	        while ( ($alt_stylesheet_file = readdir($alt_stylesheet_dir)) !== false ) {
@@ -384,11 +384,11 @@ function galleria_galleria_load_scripts( ) {
 	if( !$add_galleria_scripts )
 		return;
 		
-	wp_enqueue_script('galleria', GALLERIA_GALLERIA_PLUGIN_URL . '/js/galleria-1.2.4.min.js', array('jquery'), '1.2.4');
+	wp_enqueue_script('galleria', GG_PLUGIN_URL . '/js/galleria-1.2.5.min.js', array('jquery'), '1.2.5');
 	wp_print_scripts('galleria');
 	galleria_galleria_script_options();
 }
-add_action('wp_footer', 'galleria_galleria_load_scripts' );
+add_action('wp_print_footer_scripts', 'galleria_galleria_load_scripts' );
 
 /**
  * Add scripts to head
@@ -399,13 +399,13 @@ function galleria_galleria_script_options(){
 	
 	$design = $galleria_galleria['design'];
 		if( $design == 'classic' || $design == '' ) {
-			$design_url = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/classic/galleria.classic.min.js?v=20110607';
+			$design_url = GG_PLUGIN_URL . '/galleria-themes/classic/galleria.classic.min.js?v=20110801';
 		} else if( $design == 'dots' ) {
-			$design_url = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/dots/galleria.dots.min.js';
+			$design_url = GG_PLUGIN_URL . '/galleria-themes/dots/galleria.dots.min.js';
 		} else if( $design == 'fullscreen' ) {
-			$design_url = GALLERIA_GALLERIA_PLUGIN_URL . '/galleria-themes/fullscreen/galleria.fullscreen.js';
+			$design_url = GG_PLUGIN_URL . '/galleria-themes/fullscreen/galleria.fullscreen.js';
 		} else if( stristr($design, '.js') !== false ) {
-			$design_url = get_stylesheet_directory_uri() . GALLERIA_GALLERIA_USER_THEME_FOLDER . $design;
+			$design_url = get_stylesheet_directory_uri() . GG_USER_THEME_FOLDER . $design;
 		}
 	$autoplay = $galleria_galleria['autoplay'];
 	if ($autoplay == 1) { 
@@ -421,10 +421,9 @@ function galleria_galleria_script_options(){
 		$transition = '';
 	}
 	// hook to allow users to add any other custom options
-	$user_options = apply_filters('galleria_galleria_theme_options', '');
-
-	if( ! empty( $user_options ) ) {
-		$user_options = "," . $user_options;
+	$user_options = '';
+	if( has_filter('galleria_galleria_theme_options') ) {
+		$user_options = "," . apply_filters('galleria_galleria_theme_options', '');
 	}
 
 	
@@ -463,15 +462,15 @@ function galleria_galleria_css_head() {
     
 	?>
 	<script type="text/javascript">
-	document.documentElement.className += ' gg-active';
+		document.documentElement.className += ' gg-active';
 	</script>
+	
+	<style type='text/css'>
+		.gg-active .galleria-gallery{ width: <?php echo $width; ?>px; height: <?php echo $height; ?>px; }
+		.gg-active .galleria-container, .gg-active .galleria-gallery{ background-color: <?php echo $color; ?>; max-width: 100%; }
+		.gg-active .galleria-gallery .gallery{ display:none; } 
+	</style>
 	<?php
-	echo "<style type='text/css'>
-	.gg-active .galleria-gallery{ width: {$width}px; height: {$height}px; }
-	.gg-active .galleria-container{ background-color:{$color}; }
-	.gg-active .galleria-gallery .gallery{ display:none; } 
-	.gg-active .galleria-gallery{ background-color:{$color}; }
-	</style>";
 }
 add_action('wp_head','galleria_galleria_css_head');
 
