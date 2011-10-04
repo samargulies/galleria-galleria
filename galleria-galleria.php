@@ -5,7 +5,7 @@ Plugin URI: https://github.com/samargulies/galleria-galleria/
 Description: Transform standard WordPress galleries into galleria slideshows.
 Version: 0.3a
 Author: Sam Margulies
-Author URI: 
+Author URI: http://belabor.org/
 License: GPLv2
 
 .
@@ -413,8 +413,7 @@ function galleria_galleria_script_options(){
 	} else { 
 		$autoplay = 'false'; 
 	}
-	$wp_default_sizes = wp_embed_defaults();
-    $width = $galleria_galleria['width'] ? $galleria_galleria['width'] : $wp_default_sizes['width'];
+    $width = $galleria_galleria['width'] ? $galleria_galleria['width'] : "'auto'";
 	if( $galleria_galleria['transition'] ) {
 		$transition = "transition: '" . $galleria_galleria['transition'] . "',\n";
 	} else {
@@ -465,10 +464,11 @@ function galleria_galleria_css_head() {
 		document.documentElement.className += ' gg-active';
 	</script>
 	
-	<style type='text/css'>
+	<style type="text/css">
 		.gg-active .galleria-gallery{ width: <?php echo $width; ?>px; height: <?php echo $height; ?>px; }
 		.gg-active .galleria-container, .gg-active .galleria-gallery{ background-color: <?php echo $color; ?>; max-width: 100%; }
-		.gg-active .galleria-gallery .gallery{ display:none; } 
+		.gg-active .galleria-gallery .gallery{ display:none; }
+		.galleria-thumbnails .galleria-image img {max-width: inherit;}
 	</style>
 	<?php
 }

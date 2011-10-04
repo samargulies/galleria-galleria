@@ -3,7 +3,7 @@ Contributors: gluten
 Donate link: https://github.com/samargulies/galleria-galleria/
 Tags: photo, photos, gallery, galleries, photo gallery, lightbox 
 Requires at least: 3.0
-Tested up to: 3.2
+Tested up to: 3.2.1
 Stable tag: 0.3a
 
 Transform standard WordPress galleries into galleria slideshows. 
@@ -29,7 +29,7 @@ Links: [github](https://github.com/samargulies/galleria-galleria/)
 = How is this plugin different from other Wordpress gallery plugins? =
 Galleria Galleria is designed to only selectively load javascript to reduce the load time of your site. It also works seamlessly with galleries you have already created for your site in Wordpress. 
 = How can I customize my galleries using this plugin? =
-Galleria Galleria gives you a choice of two build-in themes, transitions and background color. Beyond that, it also supports custom built Galleria themes and [paid themes](http://galleria.aino.se/themes/) (see [other notes](http://wordpress.org/extend/plugins/galleria-galleria/other_notes/) for more information.)
+Galleria Galleria gives you a choice of two build-in themes, transitions and background color. Beyond that, it also supports custom built Galleria themes and [paid themes](http://galleria.aino.se/themes/) (see [other notes](http://wordpress.org/extend/plugins/galleria-galleria/other_notes/) for more information).
 
 == Other Notes ==
 
@@ -37,9 +37,15 @@ Galleria Galleria gives you a choice of two build-in themes, transitions and bac
 This plugin uses the standard [gallery] shortcode to create slideshows. It also adds support for a per gallery height attribute in the format [gallery height=500] to create a gallery with a height of 500px.
 
 = Custom Galleria Themes =
-The [Galleria javascript library](http://galleria.aino.se/) uses themes to style your galleries. If you would like to customize the build-in themes or use a [paid theme](http://galleria.aino.se/themes/) add a `galleria-themes` directory inside your Wordpress theme directory (make sure to place your galleria theme javascript file directly within the `galleria-themes` directory.) When you visit the Galleria Galleria settings page your javascript file will appear in the design dropdown menu.
+The [Galleria javascript library](http://galleria.aino.se/) uses themes to style your galleries. If you would like to customize the build-in themes or use a [paid theme](http://galleria.aino.se/themes/) add a `galleria-themes` directory inside the directory of your active WordPress theme (make sure to place your galleria theme javascript file directly within the `galleria-themes` directory and not in a subdirectory.) When you visit the Galleria Galleria settings page your javascript file will appear in the design dropdown menu.
 
 == Changelog ==
+
+= Version 0.3 =
+* Upgrade galleria library to version 1.2.5 and the classic theme.
+* Shrink galleries wider than their container element
+* Added hooks for developers
+* Fixed bug with Firefox thumbnails
 
 = Version 0.2 =
 * Added ability to add custom galleria themes. To enable a custom galleria theme, add a `galleria-themes` directory inside your Wordpress theme directory (make sure to place your galleria theme javascript file directly within the `galleria-themes` directory.) When you visit the Galleria Galleria settings page your javascript file will appear in the design dropdown menu.
