@@ -178,6 +178,10 @@ function galleria_galleria_default_options() {
 	$options['color'] = "";
 	
 	$options['image'] = array(
+		'full' => array(
+			'value' =>	'full',
+			'label' => __( 'Full' )
+		),
 		'large' => array(
 			'value' =>	'large',
 			'label' => __( 'Large' )
